@@ -9,6 +9,7 @@ class LetterTemplateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'category' => ['required', 'exists:letters,category'],
             'name' => ['required'],
             'email' => ['required', 'email', 'max:254'],
             'date' => ['required', 'date'],

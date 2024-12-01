@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LetterRequest;
 use App\Models\Letter;
+use App\Models\LetterTemplate;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
@@ -12,8 +13,9 @@ class LetterController extends Controller
     public function index()
     {
         $letters = Letter::get();
+        $letterTemplates = LetterTemplate::get();
 
-        return view('letter.index', compact('letters'));
+        return view('letter.index', compact('letters', 'letterTemplates'));
     }
 
     public function store(LetterRequest $request)

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\LetterController;
+use App\Http\Controllers\LetterTemplateController;
 use App\Http\Controllers\TexteditorController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,5 +29,10 @@ Route::middleware([
         Route::get('/', [LetterController::class, 'index'])->name('letter.index');
         Route::post('/store', [LetterController::class, 'store'])->name('letter.store');
         Route::delete('/{letter:slug}/delete', [LetterController::class, 'destroy'])->name('letter.destroy');
+    });
+
+    Route::prefix('letter-template')->group(function () {
+        Route::post('/store', [LetterTemplateController::class, 'store'])->name('letter-template.store');
+        Route::delete('/{letterTemplate:slug}/delete', [LetterTemplateController::class, 'destroy'])->name('letter-template.destroy');
     });
 });

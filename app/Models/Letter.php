@@ -22,6 +22,11 @@ class Letter extends Model implements HasMedia
 
         static::creating(function (Letter $letter) {
             $letter->slug = Str::uuid()->toString();
+            $letter->category = Str::slug($letter->category);
+        });
+
+        static::updating(function (Letter $letter) {
+            $letter->category = Str::slug($letter->category);
         });
     }
 }

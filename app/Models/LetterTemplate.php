@@ -4,9 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class LetterTemplate extends Model
+class LetterTemplate extends Model implements HasMedia
 {
+    use InteractsWithMedia;
+
     protected $fillable = [
         'slug',
         'name',
