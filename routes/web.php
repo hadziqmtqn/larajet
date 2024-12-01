@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LetterController;
 use App\Http\Controllers\TexteditorController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,5 +22,11 @@ Route::middleware([
         Route::post('/store', [TexteditorController::class, 'store'])->name('texteditor.store');
         Route::get('/{texteditor:id}', [TexteditorController::class, 'edit'])->name('texteditor.edit');
         Route::put('/{texteditor:id}/update', [TexteditorController::class, 'update'])->name('texteditor.update');
+    });
+
+    Route::prefix('letter')->group(function () {
+        Route::get('/', [LetterController::class, 'index'])->name('letter.index');
+        Route::post('/store', [LetterController::class, 'store'])->name('letter.store');
+        Route::delete('/{letter:slug}/delete', [LetterController::class, 'destroy'])->name('letter.destroy');
     });
 });

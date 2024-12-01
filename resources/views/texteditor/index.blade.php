@@ -1,4 +1,4 @@
-@extends('texteditor.main')
+@extends('main')
 @section('content')
     <div class="bg-light p-5 rounded">
         <h1>Text Editor</h1>
