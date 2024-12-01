@@ -13,7 +13,8 @@ class LetterController extends Controller
     public function index()
     {
         $letters = Letter::get();
-        $letterTemplates = LetterTemplate::get();
+        $letterTemplates = LetterTemplate::with('letter')
+            ->get();
 
         return view('letter.index', compact('letters', 'letterTemplates'));
     }

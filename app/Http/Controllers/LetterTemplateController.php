@@ -61,9 +61,9 @@ class LetterTemplateController extends Controller
             $templateProcessor = new TemplateProcessor($tempFilePath);
 
             // Ganti placeholder dengan data dari form
-            $templateProcessor->setValue('name', $letterTemplate->name);
-            $templateProcessor->setValue('email', $letterTemplate->email);
-            $templateProcessor->setValue('date', $letterTemplate->date);
+            $templateProcessor->setValue('name', $request->input('name'));
+            $templateProcessor->setValue('email', $request->input('email'));
+            $templateProcessor->setValue('date', $request->input('date'));
 
             // Simpan file hasil ke storage sementara
             $outputFileName = 'generated-template-' . time() . '.docx';

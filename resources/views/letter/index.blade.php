@@ -17,6 +17,8 @@
     </div>
     <div class="mt-4 mb-4">
         @include('session')
+        Contoh file docx.
+        <a href="{{ asset('example/letter-template.docx') }}">Download</a>
     </div>
     <table class="table table-striped mt-4" style="width: 100%">
         <thead>
@@ -45,7 +47,7 @@
         </tbody>
     </table>
     <div class="bg-light p-5 rounded">
-        <h1>Letter</h1>
+        <h1>Letter Template</h1>
         <form action="{{ route('letter-template.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="mb-3">
@@ -66,7 +68,7 @@
             </div>
             <div class="mb-3">
                 <label for="date" class="form-label">Date</label>
-                <input type="date" name="date" class="form-control" id="date" placeholder="Date">
+                <input type="date" name="date" class="form-control" id="date" placeholder="Date" value="{{ date('Y-m-d') }}">
             </div>
             <button type="submit" class="btn btn-lg btn-primary" role="button">Submit &raquo;</button>
         </form>
@@ -74,6 +76,7 @@
     <table class="table table-striped mt-4" style="width: 100%">
         <thead>
         <tr>
+            <th>Category</th>
             <th>Name</th>
             <th>Email</th>
             <th>Date</th>
@@ -84,6 +87,7 @@
         <tbody>
         @foreach($letterTemplates as $letterTemplate)
             <tr>
+                <td>{{ optional($letterTemplate->letter)->category }}</td>
                 <td>{{ $letterTemplate->name }}</td>
                 <td>{{ $letterTemplate->email }}</td>
                 <td>{{ \Carbon\Carbon::parse($letterTemplate->date)->isoFormat('DD MMM Y') }}</td>
