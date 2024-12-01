@@ -6,6 +6,8 @@ use App\Http\Requests\LetterTemplateRequest;
 use App\Models\Letter;
 use App\Models\LetterTemplate;
 use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpWord\TemplateProcessor;
@@ -20,20 +22,43 @@ class LetterTemplateController extends Controller
     public function store(LetterTemplateRequest $request)
     {
         try {
-            $letter = Letter::where('category', $request->input('category'))
-                ->first();
+            $letter = Letter::where('category', $request->input('category'))->first();
 
             if (!$letter) {
                 return redirect()->back()->with('error', 'category tidak ditemukan');
             }
 
+            DB::beginTransaction();
             $letterTemplate = new LetterTemplate();
+            $letterTemplate->letter_id = $letter->id;
             $letterTemplate->name = $request->input('name');
             $letterTemplate->email = $request->input('email');
             $letterTemplate->date = $request->input('date');
             $letterTemplate->save();
 
-            $templateProcessor = new TemplateProcessor($letter->getFirstMediaUrl('file'));
+            // Ambil URL file template dari S3
+            $templateUrl = $letter->getFirstMediaUrl('file');
+
+            // Ekstrak nama file dari URL
+            $fileName = basename(parse_url($templateUrl, PHP_URL_PATH));
+
+            // Tentukan path file lokal berdasarkan nama file dari URL
+            $tempDirectory = storage_path('app/temp');
+
+            // Buat direktori jika belum ada
+            if (!is_dir($tempDirectory)) {
+                mkdir($tempDirectory, 0775, true);  // Membuat folder jika belum ada
+            }
+
+            // Tentukan path lengkap untuk file sementara
+            $tempFilePath = $tempDirectory . '/' . $fileName;
+
+            // Unduh file template ke path lokal
+            $fileContent = Http::get($templateUrl)->body();
+            file_put_contents($tempFilePath, $fileContent);  // Pastikan folder temp ada
+
+            // Gunakan file lokal dengan TemplateProcessor
+            $templateProcessor = new TemplateProcessor($tempFilePath);
 
             // Ganti placeholder dengan data dari form
             $templateProcessor->setValue('name', $letterTemplate->name);
@@ -42,8 +67,7 @@ class LetterTemplateController extends Controller
 
             // Simpan file hasil ke storage sementara
             $outputFileName = 'generated-template-' . time() . '.docx';
-            $outputPath = Storage::path('temp/' . $outputFileName);
-            Storage::makeDirectory('temp'); // Buat folder temp jika belum ada
+            $outputPath = storage_path('app/temp/' . $outputFileName);
             $templateProcessor->saveAs($outputPath);
 
             // Tambahkan file ke media library
@@ -51,8 +75,10 @@ class LetterTemplateController extends Controller
                 ->toMediaCollection('letters');
 
             // Hapus file sementara
-            Storage::delete('temp/' . $outputFileName);
-        }catch (Exception $exception) {
+            Storage::delete(['temp/' . $fileName, 'temp/' . $outputFileName]);
+            DB::commit();
+        } catch (Exception $exception) {
+            DB::rollBack();
             Log::error($exception->getMessage());
             return redirect()->back()->with('error', 'Data gagal disimpan!');
         }
